@@ -1,12 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import auth_sqlite, notes_sqlite, tenants_sqlite, users_sqlite  # add users_sqlite here
+from routes import auth_sqlite, notes_sqlite, tenants_sqlite, users_sqlite
 import os
 from dotenv import load_dotenv
 
-
 load_dotenv()
-
 
 app = FastAPI(
     title="Multi-Tenant Notes App",
@@ -14,11 +12,11 @@ app = FastAPI(
     version="1.0.0"
 )
 
-
 # Allow multiple frontend URLs from .env or default values for dev
 origins = os.getenv("FRONTEND_URL", "http://localhost:5173").split(",")
 
-
+# **DEBUG PRINT for verifying loaded CORS origins**
+print(f"Allowed CORS origins: {origins}")
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,15 +26,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # Health check endpoint
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
 
-
 # Register routers with appropriate prefixes and tags
 app.include_router(auth_sqlite.router, prefix="/auth", tags=["Auth"])
 app.include_router(notes_sqlite.router, prefix="/notes", tags=["Notes"])
 app.include_router(tenants_sqlite.router, prefix="/tenants", tags=["Tenants"])
-app.include_router(users_sqlite.router, prefix="/users", tags=["Users"]) 
+app.include_router(users_sqlite.router, prefix="/users", tags=["Users"])
